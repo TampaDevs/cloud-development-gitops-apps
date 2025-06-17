@@ -1,0 +1,3 @@
+chart: gpu-operator-v25.3.0
+name: gpu-operator
+namespace: gpu-operator
