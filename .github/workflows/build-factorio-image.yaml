@@ -82,4 +82,5 @@ jobs:
           cache-to: type=gha,scope=${{ github.workflow }},mode=max
 
       - name: Image digest
-        run: echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
+        run: |
+          echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
