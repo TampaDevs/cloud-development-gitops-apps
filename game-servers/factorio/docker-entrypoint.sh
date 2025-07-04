@@ -95,7 +95,7 @@ else
 fi
 
 # -- Testing buid action
-echo "Test command"
+echo "Test command again"
 # -- End Testing Command
 
 # --- Start the server ---
