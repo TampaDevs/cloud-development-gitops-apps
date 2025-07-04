@@ -1,17 +1,22 @@
-# .github/workflows/build-factorio-image.yaml
-
 name: 'Build and Push Factorio Docker Image'
 
 on:
   push:
+    # Trigger on pushes to 'main' and any branch starting with 'dev'
     branches:
-      - main # Or your default branch
+      - main
+      - 'dev'
     paths:
       - 'game-servers/factorio/Dockerfile'
       - 'game-servers/factorio/docker-entrypoint.sh'
   
-  # Allows you to run this workflow manually from the Actions tab
+  # Allows running this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      suffix:
+        description: 'Optional tag suffix (e.g., dev, beta, rc1). Overrides branch logic.'
+        required: false
+        default: ''
 
 jobs:
   build-and-push-image:
@@ -19,11 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # Required to push to GHCR
+      packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v3
@@ -32,7 +40,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- THIS IS THE CORRECTED STEP ---
       - name: Extract Factorio version from Dockerfile
         id: extract_version
         run: |
@@ -45,9 +52,20 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/factorio
           tags: |
-            type=raw,value=${{ steps.extract_version.outputs.version_tag }}
+            # --- TAGGING LOGIC ---
+
+            # 1. Manual tag: If run manually with a suffix, create a tag like '2.0.55-beta'
+            type=raw,value=${{ steps.extract_version.outputs.version_tag }}-${{ github.event.inputs.suffix }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.suffix != '' }}
+            
+            # 2. Main branch tag: If push to main, create '2.0.55-base' and 'latest'
+            type=raw,value=${{ steps.extract_version.outputs.version_tag }}-base,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+            # 3. Develop branch tag: If push to develop, create '2.0.55-dev'
+            type=raw,value=${{ steps.extract_version.outputs.version_tag }}-dev,enable=${{ github.ref == 'refs/heads/develop' }}
+            
+            # 4. Git SHA tag (Best Practice): Always create a specific tag like '2.0.55-a1b2c3d' for traceability
             type=sha,prefix=${{ steps.extract_version.outputs.version_tag }}-,format=short
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -60,7 +78,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             FACTORIO_VERSION=${{ steps.extract_version.outputs.version_tag }}
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,scope=${{ github.workflow }},mode=max
 
       - name: Image digest
-        run: |
-          echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
+        run: echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
