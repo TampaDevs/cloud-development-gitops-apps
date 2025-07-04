@@ -1,0 +1,66 @@
+# .github/workflows/build-factorio-image.yml
+
+name: 'Build and Push Factorio Docker Image'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'game-servers/factorio/Dockerfile'
+      - 'game-servers/factorio/docker-entrypoint.sh'
+  
+  workflow_dispatch:
+
+jobs:
+  build-and-push-image:
+    name: Build and Push Factorio Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Factorio version from Dockerfile
+        id: extract_version
+        run: |
+          VERSION=$(grep 'ARG FACTORIO_VERSION' game-servers/factorio/Dockerfile | cut -d'=' -f2)
+          echo "FACTORIO_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/factorio
+          tags: |
+            # Tag with Factorio version and short git SHA (e.g., 2.0.55-a1b2c3d)
+            type=sha,prefix={{env.FACTORIO_VERSION}}-,format=short
+            # Tag with just the Factorio version (e.g., 2.0.55)
+            type=raw,value={{env.FACTORIO_VERSION}}
+            # If pushing to the main branch, also tag as 'latest'
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./game-servers/factorio
+          file: ./game-servers/factorio/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            FACTORIO_VERSION=${{ env.FACTORIO_VERSION }}
+
+      - name: Image digest
+        run: echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
