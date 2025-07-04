@@ -94,6 +94,10 @@ else
     --map-settings "${MAP_SETTINGS_PATH}"  )
 fi
 
+# -- Testing buid action
+echo "Test command"
+# -- End Testing Command
+
 # --- Start the server ---
 echo "Executing: exec ${COMMAND_ARGS[@]}"
 exec "${COMMAND_ARGS[@]}"
