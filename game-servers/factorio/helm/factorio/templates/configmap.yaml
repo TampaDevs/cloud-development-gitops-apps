@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "factorio.fullname" . }}-config
+  labels:
+    {{- include "factorio.labels" . | nindent 4 }}
+data:
+  config.ini: |-
+    ; This is a Factorio config file.
+    ; It is used when the game is started with the --config command-line option.
+    ; Lines starting with ';' are comments.
+    ; For more information, see the Factorio wiki:
+    ; https://wiki.factorio.com/Config_file
+
+    [path]
+    read-data=__PATH__executable__/../../data
+    write-data=.
+
+    [general]
+    ; autosave-interval=10
+    ; autosave-slots=3
+    ; worker-threads=0
+    ; verify-save-integrity=true
+
+    [other]
+    ; check-for-updates=true
+    ; multiplayer-ping-timeout=15000
+    ; This value is templated by Helm from values.yaml
+    port={{ .Values.service.port }}
+    
+  map-settings.json: |
+{{ tpl (.Files.Get "files/map-settings.json") . | nindent 4 }}
+
+  map-gen-settings.json: |
+{{ tpl (.Files.Get "files/map-gen-settings.json") . | nindent 4 }}
+
+  # This is now a base template. Sensitive values will be merged in by the entrypoint script.
+  server-settings.json: |
+    {
+      "name": {{ .Values.factorio.serverSettings.name | quote }},
+      "description": {{ .Values.factorio.serverSettings.description | quote }},
+      "tags": {{ .Values.factorio.serverSettings.tags | toJson }},
+      "max_players": {{ .Values.factorio.serverSettings.maxPlayers }},
+      "visibility": {{ .Values.factorio.serverSettings.visibility | toJson }},
+      "game_password": {{ .Values.factorio.serverSettings.gamePassword | quote }},
+      "require_user_verification": true,
+      "max_upload_in_kilobytes_per_second": 0,
+      "max_upload_slots": 5,
+      "minimum_latency_in_ticks": 0,
+      "ignore_player_limit_for_returning_players": false,
+      "allow_commands": "admins-only",
+      "autosave_interval": {{ .Values.factorio.serverSettings.autosaveInterval }},
+      "autosave_slots": {{ .Values.factorio.serverSettings.autosaveSlots }},
+      "afk_autokick_interval": 0,
+      "auto_pause": true,
+      "only_admins_can_pause_the_game": true,
+      "autosave_only_on_server": true,
+      "non_blocking_saving": false
+    }
+
+  server-admins.json: |
+    {{ .Values.factorio.serverAdmins | toJson }}

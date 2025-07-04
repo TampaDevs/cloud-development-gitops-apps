@@ -1,0 +1,60 @@
+# -- Default values for the Factorio chart.
+image:
+  # -- The repository to pull the image from. This is the one currently but is private.
+  repository: ghcr.io/nonstopdevelopment/factorio
+  tag: 2.0.55-base
+  pullPolicy: Always
+  # -- If using a private image, set the secret to pull it from here.
+  pullSecrets:
+    - name: ""
+
+# -- Settings for the Factorio server itself.
+factorio:
+  # -- The name of the save file to use or create.
+  saveName: "factorio-base-world"
+
+  serverSettings:
+    name: "A fun Factorio server"
+    description: "Plain default server no mods"
+    tags: [ "factorio", "no-mods" ]
+    maxPlayers: 0
+    gamePassword: ""
+    visibility:
+      public: true
+      lan: true
+    autosaveInterval: 10
+    autosaveSlots: 5
+  serverAdmins:
+    - ""
+  
+  # -- Credentials for the server. Required for public visibility.
+  # These values will be stored in a OKD Secret.
+  credentials:
+    # -- Set to true to have the chart create a new Secret for you.
+    create: true
+    # -- If using an existing secret, set `create` to false and specify the name here.
+    existingSecret: ""
+    # -- Your factorio.com username.
+    username: ""
+    # -- Your factorio.com password.
+    password: ""
+    # -- Your factorio.com token. RECOMMENDED over password.
+    # You can set this during install: --set factorio.credentials.token=your-token-here
+    token: ""
+
+# -- Configure persistence using a PersistentVolumeClaim
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClassName: "block"
+
+# -- Service configuration - set to port allowed in range
+service:
+  type: LoadBalancer
+  port: 32767
+
+# -- Security context for OKD compatibility. Set to your project UID/GID
+securityContext:
+  runAsUser: ""
+  runAsGroup: ""
+  fsGroup: ""

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "factorio.fullname" . }}
+  labels:
+    {{- include "factorio.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "factorio.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "factorio.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: SAVE_NAME
+              value: {{ .Values.factorio.saveName | quote }}
+          ports:
+            - name: game
+              containerPort: {{ .Values.service.port }}
+              protocol: UDP
+          volumeMounts:
+            # Mount the persistent volume for game data
+            - name: data
+              mountPath: /factorio
+            # Mount the entire ConfigMap to a temporary path for the entrypoint script
+            - name: config-from-helm
+              mountPath: /etc/factorio/config
+              readOnly: true
+            # Mount the entire Secret to a temporary path for the entrypoint script
+            - name: secrets-from-helm
+              mountPath: /etc/factorio/secrets
+              readOnly: true
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        # Define the volume for the persistent data claim
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "factorio.fullname" . }}
+        {{- else }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+        # Define the volume that points to our ConfigMap
+        - name: config-from-helm
+          configMap:
+            name: {{ include "factorio.fullname" . }}-config
+        # Define the volume that points to our Secret
+        - name: secrets-from-helm
+          secret:
+            secretName: {{ if and .Values.factorio.credentials .Values.factorio.credentials.existingSecret }}{{ .Values.factorio.credentials.existingSecret }}{{ else }}{{ printf "%s-credentials" (include "factorio.fullname" .) }}{{ end }}
