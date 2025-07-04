@@ -1,15 +1,16 @@
-# .github/workflows/build-factorio-image.yml
+# .github/workflows/build-factorio-image.yaml
 
 name: 'Build and Push Factorio Docker Image'
 
 on:
   push:
     branches:
-      - main
+      - main # Or your default branch
     paths:
       - 'game-servers/factorio/Dockerfile'
       - 'game-servers/factorio/docker-entrypoint.sh'
   
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -18,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: write # Required to push to GHCR
 
     steps:
       - name: Checkout repository
@@ -31,24 +32,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # --- THIS IS THE CORRECTED STEP ---
       - name: Extract Factorio version from Dockerfile
         id: extract_version
         run: |
-          VERSION=$(grep 'ARG FACTORIO_VERSION' game-servers/factorio/Dockerfile | cut -d'=' -f2)
-          echo "FACTORIO_VERSION=${VERSION}" >> $GITHUB_ENV
-
+          VERSION=$(awk -F'=' '/ARG FACTORIO_VERSION/ {print $2}' game-servers/factorio/Dockerfile)
+          echo "version_tag=${VERSION}" >> $GITHUB_OUTPUT
+      
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/factorio
           tags: |
-            # Tag with Factorio version and short git SHA (e.g., 2.0.55-a1b2c3d)
-            type=sha,prefix={{env.FACTORIO_VERSION}}-,format=short
-            # Tag with just the Factorio version (e.g., 2.0.55)
-            type=raw,value={{env.FACTORIO_VERSION}}
-            # If pushing to the main branch, also tag as 'latest'
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.extract_version.outputs.version_tag }}
+            type=sha,prefix=${{ steps.extract_version.outputs.version_tag }}-,format=short
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -60,7 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            FACTORIO_VERSION=${{ env.FACTORIO_VERSION }}
+            FACTORIO_VERSION=${{ steps.extract_version.outputs.version_tag }}
 
       - name: Image digest
         run: |
