@@ -94,9 +94,6 @@ else
     --map-settings "${MAP_SETTINGS_PATH}"  )
 fi
 
-# -- Quick edit test --
-echo "Quick edit test"
-
 # --- Start the server ---
 echo "Executing: exec ${COMMAND_ARGS[@]}"
 exec "${COMMAND_ARGS[@]}"
