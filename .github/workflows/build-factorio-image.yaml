@@ -63,4 +63,5 @@ jobs:
             FACTORIO_VERSION=${{ env.FACTORIO_VERSION }}
 
       - name: Image digest
-        run: echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
+        run: |
+          echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
