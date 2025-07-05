@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ontampa-devs-gaming/minecraft
+  namespace: ontampa-devs-gaming
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+    path: charts/ontampa-devs-gaming/minecraft
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-gaspar.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: ontampa-devs-gaming
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - Validate=true

@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: mc-proxy
+    app.kubernetes.io/part-of: minecraft
+  name: velocity-toml
+  namespace: ontampa-devs-gaming
+data:
+  velocity.toml: |
+    config-version = "2.7"
+    bind = "0.0.0.0:25565"
+    motd = "Im a server what more do you want from me"
+    show-max-players = 500
+    online-mode = true
+    force-key-authentication = true
+    prevent-client-proxy-connections = false
+    player-info-forwarding-mode = "modern"
+    forwarding-secret-file = "forwarding.secret"
+    announce-forge = false
+    kick-existing-players = false
+    ping-passthrough = "DISABLED"
+    sample-players-in-ping = false
+    enable-player-address-logging = true
+
+    [servers]
+    hub = "hub.ontampa-devs-gaming.svc.cluster.local:25565"
+    smp = "smp.ontampa-devs-gaming.svc.cluster.local:25565"
+    try = [
+        "hub",
+        "smp"
+    ]
+    [forced-hosts]
+
+    [advanced]
+    compression-threshold = 256
+    compression-level = -1
+    login-ratelimit = 3000
+    connection-timeout = 5000
+    read-timeout = 30000
+    haproxy-protocol = false
+    tcp-fast-open = false
+    bungee-plugin-message-channel = true
+    show-ping-requests = false
+    failover-on-unexpected-server-disconnect = true
+    announce-proxy-commands = true
+    log-command-executions = false
+    log-player-connections = true
+    accepts-transfers = false
+    enable-reuse-port = false
+    command-rate-limit = 50
+    forward-commands-if-rate-limited = true
+    kick-after-rate-limited-commands = 0
+    tab-complete-rate-limit = 10
+    kick-after-rate-limited-tab-completes = 0
+
+    [query]
+    enabled = true
+    port = 25565
+    map = "Velocity"
+    show-plugins = false
