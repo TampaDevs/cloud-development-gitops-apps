@@ -28,10 +28,25 @@ spec:
           env:
             - name: SAVE_NAME
               value: {{ .Values.factorio.saveName | quote }}
+            {{- if .Values.rcon.enabled }}
+            - name: ENABLE_RCON
+              value: "true"
+            - name: RCON_PORT
+              value: {{ .Values.rcon.port | quote }}
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "factorio.fullname" . }}-credentials
+                  key: rcon-password
+            {{- end }}
           ports:
             - name: game
               containerPort: {{ .Values.service.port }}
               protocol: UDP
+            {{- if .Values.rcon.enabled }}
+            - name: rcon
+              containerPort: {{ .Values.rcon.port }}
+              protocol: TCP
           volumeMounts:
             # Mount the persistent volume for game data
             - name: data

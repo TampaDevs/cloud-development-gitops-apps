@@ -1,0 +1,21 @@
+{{- if .Values.rcon.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "factorio.fullname" . }}-rcon
+  labels:
+    {{- include "factorio.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rcon
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.rcon.port }}
+      targetPort: rcon
+      protocol: TCP
+      name: rcon-tcp
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.rcon.port }}
+      {{- end }}
+  selector:
+    {{- include "factorio.selectorLabels" . | nindent 4 }}
+{{- end }}

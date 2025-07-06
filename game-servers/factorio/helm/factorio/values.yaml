@@ -53,6 +53,16 @@ service:
   type: LoadBalancer
   port: 32767
 
+# -- RCON configuration
+rcon:
+  # -- Enable RCON access to the Factorio server
+  enabled: true
+  # -- RCON port (default: 27015)
+  port: 27015
+  # -- RCON password (leave empty to auto-generate)
+  password: ""
+
+
 # -- Security context for OKD compatibility. Set to your project UID/GID
 securityContext:
   runAsUser: ""
