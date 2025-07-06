@@ -47,6 +47,7 @@ spec:
             - name: rcon
               containerPort: {{ .Values.rcon.port }}
               protocol: TCP
+            {{- end }}
           volumeMounts:
             # Mount the persistent volume for game data
             - name: data
