@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mc-proxy
+    app.kubernetes.io/component: mc-proxy
+    app.kubernetes.io/instance: mc-proxy
+    app.kubernetes.io/part-of: minecraft
+  name: mc-proxy
+  namespace: ontampa-devs-gaming
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      deployment: mc-proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mc-proxy
+        app.kubernetes.io/component: mc-proxy
+        app.kubernetes.io/instance: mc-proxy
+        app.kubernetes.io/part-of: minecraft
+        deployment: mc-proxy
+    spec:
+      containers:
+      - env:
+        - name: SERVER_NAME
+          value: TampaDevs Minecraft Arena
+        - name: ICON
+          value: https://www.tampadevs.com/_assets/misc/logos/tampa-devs.svg
+        - name: OVERRIDE_ICON
+          value: "true"
+        - name: SNOOPER_ENABLED
+          value: "false"
+        - name: ENABLE_RCON
+          value: "false"
+        - name: EULA
+          value: "true"
+        - name: TYPE
+          value: VELOCITY
+        - name: INIT_MEMORY
+          value: 4G
+        - name: MAX_MEMORY
+          value: 4G
+        - name: MAX_PLAYERS
+          value: "100"
+        - name: ONLINE_MODE
+          value: "true"
+        image: docker.io/itzg/mc-proxy@sha256:8645800325e031b72ae8531610c8cbdbf948ca2669f51f4cc9e5791bd43e7cb3
+        imagePullPolicy: IfNotPresent
+        name: mc-proxy
+        ports:
+        - containerPort: 25565
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /server
+          name: proxy-block
+        - mountPath: /server/velocity.toml
+          name: velocity
+          subPath: velocity.toml
+        - mountPath: /server/forwarding.secret
+          name: forwarding-secret
+          subPath: forwarding.secret
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: forwarding-secret
+        secret:
+          defaultMode: 420
+          secretName: forwarding-secret
+      - configMap:
+          defaultMode: 420
+          name: velocity-toml
+        name: velocity
+      - name: proxy-block
+        persistentVolumeClaim:
+          claimName: proxy-block

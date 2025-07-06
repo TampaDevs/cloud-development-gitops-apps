@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: smp
+    app.kubernetes.io/component: smp
+    app.kubernetes.io/instance: smp
+    app.kubernetes.io/part-of: minecraft
+  name: smp
+  namespace: ontampa-devs-gaming
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      deployment: smp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: smp
+        app.kubernetes.io/component: smp
+        app.kubernetes.io/instance: smp
+        app.kubernetes.io/part-of: minecraft
+        deployment: smp
+    spec:
+      containers:
+      - env:
+        - name: SERVER_NAME
+          value: TampaDevs Minecraft Survial Server
+        - name: MODE
+          value: survial
+        - name: EULA
+          value: "true"
+        - name: ICON
+          value: https://www.tampadevs.com/_assets/misc/logos/tampa-devs.svg
+        - name: OVERRIDE_ICON
+          value: "true"
+        - name: SNOOPER_ENABLED
+          value: "false"
+        - name: ENABLE_RCON
+          value: "false"
+        - name: TYPE
+          value: PAPER
+        - name: MAX_PLAYERS
+          value: "100"
+        - name: INIT_MEMORY
+          value: 4G
+        - name: MAX_MEMORY
+          value: 8G
+        - name: ENABLE_ROLLING_LOGS
+          value: "true"
+        - name: USE_AIKAR_FLAGS
+          value: "true"
+        - name: DIFFICULTY
+          value: normal
+        - name: ANNOUNCE_PLAYER_ACHIEVEMENTS
+          value: "true"
+        - name: ONLINE_MODE
+          value: "false"
+        - name: PVP
+          value: "true"
+        image: itzg/minecraft-server@sha256:6216fbd601070766fd20b23c734d7071034466f04554ce9d1b3b27bdbbcb5397
+        imagePullPolicy: IfNotPresent
+        name: smp
+        ports:
+        - containerPort: 25565
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: smp-block
+        - mountPath: /config/paper-global.yml
+          name: paper-global-yml
+          subPath: paper-global.yml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: paper-global-yml
+        name: paper-global-yml
+      - name: smp-block
+        persistentVolumeClaim:
+          claimName: smp-block
