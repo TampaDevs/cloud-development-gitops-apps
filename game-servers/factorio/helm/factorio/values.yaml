@@ -1,7 +1,7 @@
 # -- Default values for the Factorio chart.
 image:
   # -- The repository to pull the image from. This is the one currently but is private.
-  repository: ghcr.io/nonstopdevelopment/factorio
+  repository: ghcr.io/tampadevs/factorio
   tag: 2.0.55-base
   pullPolicy: Always
   # -- If using a private image, set the secret to pull it from here.
