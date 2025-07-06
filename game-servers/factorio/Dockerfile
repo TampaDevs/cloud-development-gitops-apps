@@ -32,6 +32,10 @@ LABEL maintainer="Bryan Benway <bryan@nonstopdev.com>" \
 ENV FACTORIO_DIR=/opt/factorio \
     DATA_DIR=/factorio
 
+ENV ENABLE_RCON=false
+ENV RCON_PORT=27015
+ENV RCON_PASSWORD=rconpassword
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends adduser libsdl2-2.0-0 nano jq && \
     rm -rf /var/lib/apt/lists/* && \

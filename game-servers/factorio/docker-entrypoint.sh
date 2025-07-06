@@ -94,6 +94,12 @@ else
     --map-settings "${MAP_SETTINGS_PATH}"  )
 fi
 
+if [ "${ENABLE_RCON}" = true ]; then
+  echo "Enabling RCON"
+  COMMAND_ARGS+=(--rcon-port "${RCON_PORT}")
+  COMMAND_ARGS+=(--rcon-password "${RCON_PASSWORD}")
+fi
+
 # --- Start the server ---
 echo "Executing: exec ${COMMAND_ARGS[@]}"
 exec "${COMMAND_ARGS[@]}"
