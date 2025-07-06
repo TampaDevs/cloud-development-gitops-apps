@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "wordpress-ionkube.fullname" . }}-wordpress
+  labels:
+    {{- include "wordpress-ionkube.labels" . | nindent 4 }}
+    app.kubernetes.io/component: wordpress
+spec:
+  replicas: 1
+  serviceName: {{ include "wordpress-ionkube.fullname" . }}-wordpress
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: wordpress
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-ionkube.labels" . | nindent 8 }}
+        app.kubernetes.io/component: wordpress
+    spec:
+      containers:
+        - name: wordpress
+          image: "{{ .Values.images.wordpress.repository }}:{{ .Values.images.wordpress.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: WORDPRESS_DATABASE_HOST
+              value: {{ include "wordpress-ionkube.fullname" . }}-mariadb
+            - name: WORDPRESS_DATABASE_USER
+              value: "bn_wordpress"
+            - name: WORDPRESS_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wordpress-ionkube.fullname" . }}-mariadb
+                  key: mariadb-password
+            - name: WORDPRESS_DATABASE_NAME
+              value: "bitnami_wordpress"
+            - name: WORDPRESS_BLOG_NAME
+              value: {{ .Values.wordpress.blogName | quote }}
+            - name: WORDPRESS_USERNAME
+              value: {{ .Values.wordpress.adminUser | quote }}
+            - name: WORDPRESS_PASSWORD
+              value: {{ .Values.wordpress.adminPassword | quote }}
+          resources:
+            {{- toYaml .Values.resources.wordpress | nindent 12 }}
+          volumeMounts:
+            - name: wordpress-data
+              mountPath: /bitnami/wordpress
+      volumes:
+        - name: wordpress-data
+          persistentVolumeClaim:
+            claimName: {{ include "wordpress-ionkube.fullname" . }}-wordpress-pvc

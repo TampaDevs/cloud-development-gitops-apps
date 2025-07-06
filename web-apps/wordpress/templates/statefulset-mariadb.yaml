@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "wordpress-ionkube.fullname" . }}-mariadb
+  labels:
+    {{- include "wordpress-ionkube.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+spec:
+  replicas: 1
+  serviceName: {{ include "wordpress-ionkube.fullname" . }}-mariadb
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: mariadb
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-ionkube.labels" . | nindent 8 }}
+        app.kubernetes.io/component: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: "{{ .Values.images.mariadb.repository }}:{{ .Values.images.mariadb.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wordpress-ionkube.fullname" . }}-mariadb
+                  key: mariadb-root-password
+            - name: MARIADB_USER
+              value: "bn_wordpress"
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "wordpress-ionkube.fullname" . }}-mariadb
+                  key: mariadb-password
+            - name: MARIADB_DATABASE
+              value: "bitnami_wordpress"
+          resources:
+            {{- toYaml .Values.resources.mariadb | nindent 12 }}
+          volumeMounts:
+            - name: mariadb-data
+              mountPath: /bitnami/mariadb
+      volumes:
+        - name: mariadb-data
+          persistentVolumeClaim:
+            claimName: {{ include "wordpress-ionkube.fullname" . }}-mariadb-pvc

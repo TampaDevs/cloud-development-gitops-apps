@@ -1,0 +1,15 @@
+{{- if .Values.persistence.wordpress.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "wordpress-ionkube.fullname" . }}-wordpress-pvc
+  labels:
+    {{- include "wordpress-ionkube.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.wordpress.size }}
+{{- end }}
