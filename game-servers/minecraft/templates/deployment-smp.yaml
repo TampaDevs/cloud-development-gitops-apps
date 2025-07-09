@@ -31,6 +31,8 @@ spec:
       - env:
         - name: SERVER_NAME
           value: TampaDevs Minecraft Survial Server
+        - name: MOTD
+          value: Welcome to the Thunderdome
         - name: MODE
           value: survial
         - name: EULA
@@ -42,7 +44,20 @@ spec:
         - name: SNOOPER_ENABLED
           value: "false"
         - name: ENABLE_RCON
-          value: "false"
+          valueFrom:
+            secretKeyRef:
+              key: ENABLE_RCON
+              name: rcon-initial-secret
+        - name: RCON_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: RCON_PASSWORD
+              name: rcon-initial-secret
+        - name: RCON_PORT
+          valueFrom:
+            secretKeyRef:
+              key: RCON_PORT
+              name: rcon-initial-secret
         - name: TYPE
           value: PAPER
         - name: MAX_PLAYERS
@@ -67,6 +82,8 @@ spec:
         imagePullPolicy: IfNotPresent
         name: smp
         ports:
+        - containerPort: 25575
+          protocol: TCP
         - containerPort: 25565
           protocol: TCP
         resources: {}
@@ -84,6 +101,10 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
+      - name: rcon-initial-secret
+        secret:
+          defaultMode: 420
+          secretName: rcon-initial-secret
       - configMap:
           defaultMode: 420
           name: paper-global-yml

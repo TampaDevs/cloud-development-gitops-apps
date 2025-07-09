@@ -1,6 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "15"
+  creationTimestamp: "2025-07-03T18:08:54Z"
+  generation: 39
   labels:
     app: hub
     app.kubernetes.io/component: hub
@@ -8,6 +12,8 @@ metadata:
     app.kubernetes.io/part-of: minecraft
   name: hub
   namespace: ontampa-devs-gaming
+  resourceVersion: "10940626"
+  uid: 1208def7-8e9d-46b2-9712-3132a8f58e1c
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
@@ -30,41 +36,56 @@ spec:
       containers:
       - env:
         - name: SERVER_NAME
-          value: TampaDevs Minecraft Arena
+          value: TampaDevs Minecraft Hub
+        - name: EULA
+          value: "true"
         - name: ICON
           value: https://www.tampadevs.com/_assets/misc/logos/tampa-devs.svg
         - name: OVERRIDE_ICON
           value: "true"
-        - name: EULA
-          value: "true"
         - name: SNOOPER_ENABLED
           value: "false"
         - name: ENABLE_RCON
-          value: "false"
+          valueFrom:
+            secretKeyRef:
+              key: ENABLE_RCON
+              name: rcon-initial-secret
+        - name: RCON_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: RCON_PASSWORD
+              name: rcon-initial-secret
+        - name: RCON_PORT
+          valueFrom:
+            secretKeyRef:
+              key: RCON_PORT
+              name: rcon-initial-secret
         - name: TYPE
           value: PAPER
+        - name: MAX_PLAYERS
+          value: "100"
         - name: INIT_MEMORY
           value: 4G
         - name: MAX_MEMORY
           value: 8G
-        - name: MAX_PLAYERS
-          value: "100"
         - name: ENABLE_ROLLING_LOGS
           value: "true"
+        - name: USE_AIKAR_FLAGS
+          value: "true"
+        - name: DIFFICULTY
+          value: normal
         - name: ANNOUNCE_PLAYER_ACHIEVEMENTS
           value: "true"
         - name: ONLINE_MODE
           value: "false"
         - name: PVP
-          value: "false"
-        - name: USE_AIKAR_FLAGS
           value: "true"
-        - name: DIFFICULTY
-          value: normal
         image: itzg/minecraft-server@sha256:6216fbd601070766fd20b23c734d7071034466f04554ce9d1b3b27bdbbcb5397
         imagePullPolicy: IfNotPresent
         name: hub
         ports:
+        - containerPort: 25575
+          protocol: TCP
         - containerPort: 25565
           protocol: TCP
         resources: {}
@@ -89,3 +110,22 @@ spec:
       - name: hub-block
         persistentVolumeClaim:
           claimName: hub-block
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-07-03T18:08:54Z"
+    lastUpdateTime: "2025-07-06T18:35:24Z"
+    message: ReplicaSet "hub-84f86cd94f" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2025-07-08T22:55:19Z"
+    lastUpdateTime: "2025-07-08T22:55:19Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 39
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
