@@ -3,7 +3,7 @@
 # =====================================================================
 FROM ubuntu:22.04 AS builder
 
-ARG FACTORIO_VERSION=2.0.55
+ARG FACTORIO_VERSION=2.0.60
 ARG FACTORIO_URL=https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64
 
 ENV DEBIAN_FRONTEND=noninteractive
