@@ -3,4 +3,4 @@ name: factorio
 description: A Helm chart for a base Factorio headless server on Kubernetes/OKD
 type: application
 version: 0.1.0
-appVersion: "2.0.55"
+appVersion: "latest"
