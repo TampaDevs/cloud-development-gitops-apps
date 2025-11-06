@@ -9,7 +9,7 @@ ARG FACTORIO_URL=https://www.factorio.com/get-download/${FACTORIO_VERSION}/headl
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget tar xz-utils && \
+    apt-get install -y --no-install-recommends wget tar xz-utils ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
