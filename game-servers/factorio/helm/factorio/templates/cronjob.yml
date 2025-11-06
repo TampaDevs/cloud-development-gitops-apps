@@ -1,0 +1,39 @@
+---
+kind: CronJob
+apiVersion: batch/v1
+metadata:
+  name: factorio-version-check
+  namespace: ontampa-devs-gaming
+spec:
+  schedule: 0 8 * * *
+  concurrencyPolicy: Allow
+  suspend: false
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+            - name: build-trigger
+              image: 'image-registry.openshift-image-registry.svc:5000/ontampa-devs-gaming/origin-cli:lastest'
+              env:
+                - name: DEPLOYED_RELEASE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: factorio-base-config
+                      key: DEPLOYED_RELEASE_KEY
+              command: [ "/bin/bash", "-c" ]
+              args: ["/var/run/user/update-factorio-release.sh"]
+              volumeMounts:
+              - name: script-volume
+                mountPath: /var/run/user/scripts
+                subpath: update-factorio-release.sh
+          restartPolicy: OnFailure
+          volumes:
+          - name: script-volume
+            configMap:
+              name: factorio-base-config
+              defaultMode: 0744

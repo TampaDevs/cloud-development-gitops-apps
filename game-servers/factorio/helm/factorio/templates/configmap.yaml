@@ -1,3 +1,4 @@
+--- 
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,6 +6,8 @@ metadata:
   labels:
     {{- include "factorio.labels" . | nindent 4 }}
 data:
+  DEPLOYED_RELEASE_KEY: {{ ".Values.factorio.intialRelease" | quote }}
+  update-factorio-release.sh: {{ .Files.Get "files/update-factorio-release.sh" }}
   config.ini: |-
     ; This is a Factorio config file.
     ; It is used when the game is started with the --config command-line option.

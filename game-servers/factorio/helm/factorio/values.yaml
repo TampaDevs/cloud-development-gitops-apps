@@ -10,6 +10,7 @@ image:
 
 # -- Settings for the Factorio server itself.
 factorio:
+  intialRelease: "1.0.0"
   # -- The name of the save file to use or create.
   saveName: "factorio-base-world"
 
@@ -28,7 +29,7 @@ factorio:
     - ""
   
   # -- Credentials for the server. Required for public visibility.
-  # These values will be stored in a OKD Secret.
+  # These values will be stored in a kubernetes Secret.
   credentials:
     # -- Set to true to have the chart create a new Secret for you.
     create: true
