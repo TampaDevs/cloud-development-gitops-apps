@@ -40,10 +40,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Factorio version from Dockerfile
+      - name: Read version from factorio-version.txt
         id: extract_version
         run: |
-          VERSION=$(awk -F'=' '/ARG FACTORIO_VERSION/ {print $2}' game-servers/factorio/Dockerfile)
+          VERSION=$(cat ./game-servers/factorio/factorio-version.txt)
           echo "version_tag=${VERSION}" >> $GITHUB_OUTPUT
       
       - name: Extract Docker metadata
