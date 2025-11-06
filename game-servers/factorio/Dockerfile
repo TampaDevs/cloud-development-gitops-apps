@@ -6,24 +6,31 @@ ARG FACTORIO_VERSION_ARG=latest
 
 FROM ubuntu:22.04 AS builder
 
-# Reference the global ARG
-ARG FACTORIO_VERSION_ARG
-# Set an ENV var for this stage, which is best practice
+#    This value is passed in from GitHub Action (--build-arg FACTORIO_VERSION_ARG=...).
+#    A default is set for manual builds without the argument.
+ARG FACTORIO_VERSION_ARG=latest
+
+# Set an environment variable from the build-time argument.
 ENV FACTORIO_VERSION=${FACTORIO_VERSION_ARG}
 
+# Set non-interactive mode for package installation
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
 WORKDIR /tmp
 
-# Combine all operations into a single, efficient RUN layer
+# 3. Update, install dependencies, download, and extract Factorio in a single RUN layer. 
+#    Changes for better speed.
 RUN \
   echo "--- Building with Factorio version: ${FACTORIO_VERSION} ---" && \
   apt-get update && \
-  # ca-certificates is the real fix for the SSL error
-  apt-get install -y --no-install-recommends wget tar xz-utils ca-certificates && \
+  apt-get install -y --no-install-recommends wget xz-utils && \
   \
-  # Download, extract, and then clean up in one go
-  wget -O factorio.tar.xz "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" && \
-  tar -xJf factorio.tar.xz && \
+  # Construct the URL directly and download the file
+  wget -O factorio-headless.tar.xz "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" && \
+  tar -xJf factorio-headless.tar.xz && \
+  \
+  # Clean up package manager cache to keep the layer small
   rm -rf /var/lib/apt/lists/*
 
 # =====================================================================
