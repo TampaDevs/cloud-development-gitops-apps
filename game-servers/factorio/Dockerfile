@@ -3,19 +3,32 @@
 # =====================================================================
 FROM ubuntu:22.04 AS builder
 
-ARG FACTORIO_VERSION=2.0.72
-ARG FACTORIO_URL=https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64
+#    This value is passed in from GitHub Action (--build-arg FACTORIO_VERSION_ARG=...).
+#    A default is set for manual builds without the argument.
+ARG FACTORIO_VERSION_ARG=latest
 
+# Set an environment variable from the build-time argument.
+ENV FACTORIO_VERSION=${FACTORIO_VERSION_ARG}
+
+# Set non-interactive mode for package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget tar xz-utils && \
-    rm -rf /var/lib/apt/lists/*
-
+# Set working directory
 WORKDIR /tmp
 
-RUN wget -O factorio.tar.xz "${FACTORIO_URL}" --no-check-certificate && \
-    tar -xJf factorio.tar.xz
+# 3. Update, install dependencies, download, and extract Factorio in a single RUN layer. 
+#    Changes for better speed.
+RUN \
+  echo "--- Building with Factorio version: ${FACTORIO_VERSION} ---" && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends wget xz-utils && \
+  \
+  # Construct the URL directly and download the file
+  wget -O factorio-headless.tar.xz "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" && \
+  tar -xJf factorio-headless.tar.xz && \
+  \
+  # Clean up package manager cache to keep the layer small
+  rm -rf /var/lib/apt/lists/*
 
 # =====================================================================
 # FINAL IMAGE: The actual runtime container
