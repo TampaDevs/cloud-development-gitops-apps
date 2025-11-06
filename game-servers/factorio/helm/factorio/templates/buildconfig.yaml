@@ -1,0 +1,25 @@
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: factorio
+  namespace: ontampa-devs-gaming
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: factorio:latest
+  runPolicy: Serial
+  source:
+    contextDir: game-servers/factorio
+    git:
+      ref: main
+      uri: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+    type: Docker
+  successfulBuildsHistoryLimit: 5

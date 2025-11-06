@@ -29,13 +29,10 @@ function get_packs(){
 
 function get_latest_release(){
 	 local ret=0
+         local FACTORIO_API_ENDPOINT="https://factorio.com/api/latest-releases"
          local DEPLOYED_RELEASE=${DEPLOYED_RELEASE:-0}
          local RELEASE=${1:-"stable"}
          local BRANCH=${2:-"headless"}
-         local FACTORIO_API_ENDPOINT="https://factorio.com/api/latest-releases"
-
-	 get_packs
-
          local FACTORIO_LASTEST_RELEASE=$(\
                        /usr/bin/curl -s ${FACTORIO_API_ENDPOINT} \
                        | jq \
@@ -44,9 +41,7 @@ function get_latest_release(){
 			 --arg B "${BRANCH}" \
 			 '.[$R][$B]'
                         )
-
 	[[ ${DEPLOYED_RELEASE} == ${FACTORIO_LASTEST_RELEASE} ]] && errno 100
-
 	echo "New release available updating config map"
 
 	oc patch configmap factorio-base-config \
@@ -66,11 +61,10 @@ function get_latest_release(){
 
 
 function main(){
+     get_packs
      get_latest_release
-     return  0
+
+     return 0
 }
 
 main
-
-
-

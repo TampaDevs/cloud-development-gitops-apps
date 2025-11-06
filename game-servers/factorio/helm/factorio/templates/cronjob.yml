@@ -24,7 +24,7 @@ spec:
                   valueFrom:
                     configMapKeyRef:
                       name: factorio-base-config
-                      key: DEPLOYED_RELEASE_KEY
+                      key: DEPLOYED_RELEASE
               command: [ "/bin/bash", "-c" ]
               args: ["/var/run/user/update-factorio-release.sh"]
               volumeMounts:
