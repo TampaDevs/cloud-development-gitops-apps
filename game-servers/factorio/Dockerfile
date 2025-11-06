@@ -24,13 +24,10 @@ WORKDIR /tmp
 RUN \
   echo "--- Building with Factorio version: ${FACTORIO_VERSION} ---" && \
   apt-get update && \
-  apt-get install -y --no-install-recommends wget xz-utils && \
+  apt-get install -y --no-install-recommends wget tar xz-utils ca-certificates && \
   \
-  # Construct the URL directly and download the file
-  wget -O factorio-headless.tar.xz "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" && \
-  tar -xJf factorio-headless.tar.xz && \
-  \
-  # Clean up package manager cache to keep the layer small
+  wget -O factorio.tar.xz "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" && \
+  tar -xJf factorio.tar.xz && \
   rm -rf /var/lib/apt/lists/*
 
 # =====================================================================
