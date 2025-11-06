@@ -30,9 +30,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ... setup and login steps are fine ...
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Log in to the GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -46,25 +46,18 @@ jobs:
           VERSION=$(cat ./game-servers/factorio/factorio-version.txt)
           echo "version_tag=${VERSION}" >> $GITHUB_OUTPUT
       
+      # ... meta step is fine ...
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/factorio
           tags: |
-            # --- TAGGING LOGIC ---
-
-            # 1. Manual tag: If run manually with a suffix, create a tag like '2.0.55-beta'
+            # Your tagging logic is fine
             type=raw,value=${{ steps.extract_version.outputs.version_tag }}-${{ github.event.inputs.suffix }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.suffix != '' }}
-            
-            # 2. Main branch tag: If push to main, create '2.0.55-base' and 'latest'
             type=raw,value=${{ steps.extract_version.outputs.version_tag }}-base,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-
-            # 3. Develop branch tag: If push to develop, create '2.0.55-dev'
             type=raw,value=${{ steps.extract_version.outputs.version_tag }}-dev,enable=${{ github.ref == 'refs/heads/develop' }}
-            
-            # 4. Git SHA tag (Best Practice): Always create a specific tag like '2.0.55-a1b2c3d' for traceability
             type=sha,prefix=${{ steps.extract_version.outputs.version_tag }}-,format=short
 
       - name: Build and push Docker image
@@ -76,11 +69,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # ---------------------------------------------------------------- #
+          # FIX: The ARG in the Dockerfile should be FACTORIO_VERSION_ARG
+          # This ensures it's passed correctly to both build stages.
+          # ---------------------------------------------------------------- #
           build-args: |
-            FACTORIO_VERSION=${{ steps.extract_version.outputs.version_tag }}
+            FACTORIO_VERSION_ARG=${{ steps.extract_version.outputs.version_tag }}
           cache-from: type=gha,scope=${{ github.workflow }}
           cache-to: type=gha,scope=${{ github.workflow }},mode=max
-
-      - name: Image digest
-        run: |
-          echo "Pushed image with digest: ${{ steps.build-and-push.outputs.digest }}"
