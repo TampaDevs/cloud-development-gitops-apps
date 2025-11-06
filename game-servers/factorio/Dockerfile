@@ -1,6 +1,9 @@
 # =====================================================================
 # BUILDER STAGE: Download and extract Factorio
 # =====================================================================
+# Use a global ARG so it's available in all stages
+ARG FACTORIO_VERSION_ARG=latest
+
 FROM ubuntu:22.04 AS builder
 
 #    This value is passed in from GitHub Action (--build-arg FACTORIO_VERSION_ARG=...).
