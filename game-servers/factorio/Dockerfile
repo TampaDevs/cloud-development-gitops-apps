@@ -1,21 +1,30 @@
 # =====================================================================
 # BUILDER STAGE: Download and extract Factorio
 # =====================================================================
+# Use a global ARG so it's available in all stages
+ARG FACTORIO_VERSION_ARG=latest
+
 FROM ubuntu:22.04 AS builder
 
-ARG FACTORIO_VERSION=2.0.72
-ARG FACTORIO_URL=https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64
+# Reference the global ARG
+ARG FACTORIO_VERSION_ARG
+# Set an ENV var for this stage, which is best practice
+ENV FACTORIO_VERSION=${FACTORIO_VERSION_ARG}
 
 ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget tar xz-utils ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /tmp
 
-RUN wget -O factorio.tar.xz "${FACTORIO_URL}" --no-check-certificate && \
-    tar -xJf factorio.tar.xz
+# Combine all operations into a single, efficient RUN layer
+RUN \
+  echo "--- Building with Factorio version: ${FACTORIO_VERSION} ---" && \
+  apt-get update && \
+  # ca-certificates is the real fix for the SSL error
+  apt-get install -y --no-install-recommends wget tar xz-utils ca-certificates && \
+  \
+  # Download, extract, and then clean up in one go
+  wget -O factorio.tar.xz "https://www.factorio.com/get-download/${FACTORIO_VERSION}/headless/linux64" && \
+  tar -xJf factorio.tar.xz && \
+  rm -rf /var/lib/apt/lists/*
 
 # =====================================================================
 # FINAL IMAGE: The actual runtime container
