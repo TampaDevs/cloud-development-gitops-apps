@@ -3,7 +3,7 @@ name: Nightly Factorio Version Check
 on:
   # Schedule to run at midnight UTC every day.
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 0 * * *'
 
   # Allow to be manually run
   workflow_dispatch:
