@@ -9,6 +9,7 @@ const path = require("path");
 const {
     GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, FILE_PATH, BASE_BRANCH = "main",
     GPG_KEY_ID, GPG_PASSPHRASE, GPG_PRIVATE_KEY,
+    FORCE_UPDATE_VERSION // For testing
 } = process.env;
 
 const FACTORIO_API_URL = "https://factorio.com/api/latest-releases";
