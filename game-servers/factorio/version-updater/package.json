@@ -1,0 +1,16 @@
+{
+  "name": "factorio-pr-bot",
+  "version": "1.0.0",
+  "description": "Factorio version watcher bot for PRs.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node check-and-update.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3"
+  }
+}
