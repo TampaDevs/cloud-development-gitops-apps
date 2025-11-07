@@ -1,0 +1,56 @@
+name: Nightly Factorio Version Check
+
+on:
+  # Schedule to run at midnight UTC every day.
+  schedule:
+    - cron: '0 0 * * *'
+
+  # Allow to be manually run
+  workflow_dispatch:
+
+jobs:
+  check-and-update:
+    name: Check for New Factorio Version
+    runs-on: ubuntu-latest
+
+    # Define the permissions the job needs.
+    permissions:
+      contents: write      # To create branches and commits
+      pull-requests: write # To create pull requests
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm' # Cache npm dependencies for faster runs
+          # IMPORTANT: Specify the path to your script's package.json
+          cache-dependency-path: 'game-servers/factorio/version-updater/package.json'
+
+      - name: Install script dependencies
+        # IMPORTANT: If your script is in a subdirectory, specify it here.
+        # For example: automation/version-checker
+        run: npm install
+        working-directory: game-servers/factorio/version-updater/
+
+      - name: Run the version check script
+        working-directory: game-servers/factorio/version-updater/
+        env:
+          # --- Authentication & Targeting ---
+          GITHUB_TOKEN: ${{ secrets.UPDATER_PAT }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+          
+          # --- Script Configuration ---
+          FILE_PATH: "game-servers/factorio/factorio-version.txt"
+          BASE_BRANCH: "main"
+          
+          # --- GPG Signing Secrets ---
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          # The single quotes are crucial for passing the multi-line key correctly
+          GPG_PRIVATE_KEY: '${{ secrets.GPG_PRIVATE_KEY }}'
+        run: npm start
