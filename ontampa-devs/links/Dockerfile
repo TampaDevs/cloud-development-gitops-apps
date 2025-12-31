@@ -1,71 +1,64 @@
-FROM alpine:3.23.2
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
-ENV TZ="UTC"
 ENV SERVER_ADMIN="cloud@ontampa.dev"
-ENV HTTP_SERVER_NAME="localhost.localdomain"
-ENV HTTPS_SERVER_NAME="${HTTP_SERVER_NAME}"
-ENV HTTP_SERVER_PORT="8080"
-ENV HTTPS_SERVER_PORT="8443"
-EXPOSE $HTTP_SERVER_PORT $HTTPS_SERVER_PORT
-
 ENV LOG_LEVEL="debug"
 ENV PHP_MEMORY_LIMIT="512M"
 ENV UPLOAD_MAX_FILESIZE="8M"
 
-RUN echo 'nameserver 1.1.1.1' > /etc/resolv.conf
+ENV HTTP_SERVER_NAME="localhost"
+ENV HTTPS_SERVER_NAME="${HTTP_SERVER_NAME}"
+ENV HTTP_SERVER_PORT="8080"
+ENV HTTPS_SERVER_PORT="8443"
 
-RUN apk --no-cache --update add \
- apache2 apache2-ctl \
- apache2-ssl \
- php83-apache2 \
- php83-bcmath \
- php83-bz2 \
- php83-calendar \
- php83-common \
- php83-ctype \
- php83-curl \
- php83-dom \
- php83-fileinfo \
- php83-gd \
- php83-iconv \
- php83-json \
- php83-mbstring \
- php83-mysqli \
- php83-mysqlnd \
- php83-openssl \
- php83-pdo_mysql \
- php83-pdo_pgsql \
- php83-pdo_sqlite \
- php83-phar \
- php83-session \
- php83-xml \
- php83-tokenizer \
- php83-zip \
- php83-xmlwriter \
- php83-redis \
- libarchive-tools \
- curl \
- tzdata \
+EXPOSE $HTTP_SERVER_PORT $HTTPS_SERVER_PORT
+
+# dnf optimization
+RUN echo 'max_parallel_downloads=20' >> /etc/dnf/dnf.conf
+RUN echo 'fastestmirror=True' >> /etc/dnf/dnf.conf
+
+# disable rhsm warnings
+RUN printf "[rhsm]\nauto_enable_yum_plugins = 0\n" > rhsm.conf
+RUN printf "[main]\nenabled=0\n" > /etc/dnf/plugins/subscription-manager.conf
+
+RUN microdnf install -y dnf \
+ && dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
+ && dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+
+RUN dnf config-manager --set-enabled remi-modular
+RUN dnf module reset php -y \
+ && dnf module enable php:remi-8.3 -y
+
+RUN microdnf install -y \
+    httpd mod_ssl libarchive \
+    php php-common php-bcmath php-gd \
+    php-mbstring php-mysqlnd php-pgsql \
+    php-xml php-pecl-zip php-pecl-redis \
+    libarchive bsdtar openssl \
+ && microdnf clean all \
  && mkdir /htdocs
 
-RUN curl -sSL https://github.com/linkstackorg/linkstack/releases/latest/download/linkstack.zip \
-  | bsdtar -xvf- -C /htdocs
+RUN curl -L --compressed --http2 --tcp-fastopen --buffer --keepalive-time 60 \
+ https://github.com/linkstackorg/linkstack/releases/latest/download/linkstack.zip \
+ | bsdtar -C /htdocs --strip-components 1 -xf-
 
-COPY --chown=apache:apache conf/apache2/httpd.conf      /etc/apache2/httpd.conf
-COPY --chown=apache:apache conf/apache2/conf.d/ssl.conf /etc/apache2/conf.d/ssl.conf
-COPY --chown=apache:apache conf/php/php.ini     /etc/php83/conf.d/40-custom.ini
-COPY --chown=apache:apache conf/ssl/openssl.cnf /etc/ssl/openssl.cnf
-COPY --chown=apache:apache src         /htdocs
+
 COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/
 
-RUN chown -R apache:apache /etc/php83
-RUN chown -R apache:apache /etc/ssl/openssl.cnf
-RUN chown -R apache:apache /etc/apache2
-RUN chmod -R +rwX /etc/apache2
-RUN chmod -R 755 /etc/php83
+COPY --chmod=0750 --chown=apache:apache conf/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf
+COPY --chmod=0750 --chown=apache:apache conf/php/php.ini /etc/php.d/40-custom.ini
+COPY --chmod=0750 --chown=apache:apache conf/httpd/httpd.conf /etc/httpd/httpd.conf
+COPY --chmod=0750 --chown=apache:apache conf/ssl/openssl.cnf /etc/ssl/openssl.cnf
+COPY --chmod=0750 --chown=apache:apache src /htdocs
 
-RUN apachectl configtest
-USER apache:apache
+RUN mkdir /etc/httpd/conf.d/$HTTP_SERVER_NAME \
+ && chown apache:apache /etc/httpd/conf.d/$HTTP_SERVER_NAME 
+
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -config /etc/ssl/openssl.cnf \
+                -keyout /etc/httpd/conf.d/${HTTP_SERVER_NAME}/key-${HTTP_SERVER_NAME} \
+                -out /etc/httpd/conf.d/${HTTP_SERVER_NAME}/cert-${HTTP_SERVER_NAME} &> /dev/null
+RUN httpd -t
+USER apache 
 
 WORKDIR /htdocs
 CMD ["docker-entrypoint.sh"]
