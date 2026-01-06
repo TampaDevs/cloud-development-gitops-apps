@@ -42,6 +42,7 @@ RUN curl -L --compressed --http2 --tcp-fastopen --buffer --keepalive-time 60 \
 COPY --chown=apache:apache conf/php/php.ini /etc/php.d/40-custom.ini
 COPY --chown=apache:apache conf/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf
 COPY --chown=apache:apache conf/httpd/conf.d/host-linkstack.conf  /etc/httpd/conf.d/host-linkstack.conf
+RUN chown -R apache:apache /run/httpd
 
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/
 
