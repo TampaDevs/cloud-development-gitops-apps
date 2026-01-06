@@ -8,7 +8,7 @@ ENV UPLOAD_MAX_FILESIZE="8M"
 ENV HTTP_SERVER_NAME="localhost"
 ENV HTTP_SERVER_PORT="8080"
 
-EXPOSE $HTTP_SERVER_PORT $HTTPS_SERVER_PORT
+EXPOSE $HTTP_SERVER_PORT
 
 # dnf optimization
 RUN echo 'max_parallel_downloads=20' >> /etc/dnf/dnf.conf
@@ -30,6 +30,12 @@ RUN microdnf install -y \
     libarchive bsdtar openssl \
  && microdnf clean all \
  && mkdir /htdocs
+
+# generate default cert for ssl.conf
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/pki/tls/private/localhost.key \
+    -out /etc/pki/tls/certs/localhost.crt \
+    -subj "/C=US/ST=FL/L=Tampa/O=TampaDevs/CN=localhost"
 
 RUN curl -L --compressed --http2 --tcp-fastopen --buffer --keepalive-time 60 \
  https://github.com/linkstackorg/linkstack/releases/latest/download/linkstack.zip \
