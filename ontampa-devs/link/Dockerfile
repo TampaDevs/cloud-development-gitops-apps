@@ -2,8 +2,6 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
 ENV SERVER_ADMIN="cloud@ontampa.dev"
 ENV LOG_LEVEL="debug"
-ENV PHP_MEMORY_LIMIT="512M"
-ENV UPLOAD_MAX_FILESIZE="8M"
 
 ENV HTTP_SERVER_NAME="localhost"
 ENV HTTP_SERVER_PORT="8080"

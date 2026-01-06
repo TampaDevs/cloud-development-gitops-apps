@@ -28,8 +28,4 @@ echo   "| upload_max_filesize = ${UPLOAD_MAX_FILESIZE}                   |"
 echo   "| memory_limit = ${PHP_MEMORY_LIMIT}                             |"
 echo   "| date.timezone = ${TZ}                                          |" 
 
-echo "upload_max_filesize = ${UPLOAD_MAX_FILESIZE}" >> /etc/php.d/40-custom.ini
-echo "memory_limit = ${PHP_MEMORY_LIMIT}" >> /etc/php.d/40-custom.ini
-echo "date.timezone = ${TZ}" >> /etc/php.d/40-custom.ini
-
 httpd -DFOREGROUND
