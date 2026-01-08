@@ -1,0 +1,24 @@
+env:
+  HTTP_SERVER_NAME: http://links.ontampa.dev
+  HTTPS_SERVER_NAME: https://links.ontampa.dev
+  TRUSTED_PROXIES: '*'
+ingress:
+  enabled: false
+linkstack:
+  data:
+    pvc:
+      size: 5Gi
+      storageClass: block
+    rootPath: /htdocs
+  env:
+    FORCE_HTTPS: true
+    TRUSTED_PROXIES: '*'
+podSecurityContext:
+  fsGroup: 0
+  runAsUser: 0
+service:
+  ports:
+    http: 8080
+    https: 8443
+serviceAccount:
+  name: linkstack-sa
