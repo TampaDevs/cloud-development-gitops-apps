@@ -1,0 +1,5 @@
+apiVersion: v2
+name: LinkStack
+description: Helm Chart for the LinkStack Page instance
+type: application
+version: 0.1.0
