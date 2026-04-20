@@ -1,0 +1,20 @@
+{% for client in oauth_clients() %}
+<div class="text-center mb-3">
+    <a href="{{ url_for('sso.sso_oauth', client_name=client.name) }}">
+        {% if client.icon %}
+        <img src="{{ client.icon }}"
+             alt="Log in with {{ client.name }}"
+             style="height: 48px; cursor: pointer;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+        <span class="btn btn-secondary btn-lg btn-block" style="display:none;">
+            Log in with {{ client.name }}
+        </span>
+        {% else %}
+        <span class="btn btn-secondary btn-lg btn-block">
+            Log in with {{ client.name }}
+        </span>
+        {% endif %}
+    </a>
+</div>
+<hr>
+{% endfor %}

@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: ontampa-devs-ctfd
+spec:
+  selector:
+    app: postgres
+  clusterIP: None
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: ontampa-devs-ctfd
+spec:
+  selector:
+    app: redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ctfd
+  namespace: ontampa-devs-ctfd
+  labels:
+    app: ctfd
+spec:
+  selector:
+    app: ctfd
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
