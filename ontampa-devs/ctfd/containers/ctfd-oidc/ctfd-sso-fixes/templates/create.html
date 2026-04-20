@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>Add OAuth2 client</h1>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            {% include "components/errors.html" %}
+            <form method="post" accept-charset="utf-8" autocomplete="off">
+                <div class="form-group">
+                    <b>{{ form.name.label }}</b>
+                    {{ form.name(class="form-control", value=name) }}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.client_id.label }}</b>
+                    {{ form.client_id(class="form-control", value=client_id) }}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.client_secret.label }}</b>
+                    {{ form.client_secret(class="form-control", value=client_secret) }}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.access_token_url.label }}</b>
+                    {{ form.access_token_url(class="form-control", value=access_token_url) }}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.authorize_url.label }}</b>
+                    {{ form.authorize_url(class="form-control", value=authorize_url) }}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.api_base_url.label }}</b>
+                    {{ form.api_base_url(class="form-control", value=api_base_url) }}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.icon.label }}</b>
+                    <small class="form-text text-muted mb-2">
+                        URL to an image or SVG used as the login button. Leave blank to show a standard text button.
+                    </small>
+                    {{ form.icon(class="form-control", value=icon, placeholder="https://example.com/signin-button.svg") }}
+                    {% if icon %}
+                    <div class="mt-2">
+                        <small class="text-muted">Preview:</small><br>
+                        <img src="{{ icon }}" style="height:48px; margin-top:6px;"
+                             onerror="this.style.display='none'">
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <b>{{ form.admin_entitlement.label }}</b>
+                    <small class="form-text text-muted mb-2">
+                        Entitlement claim value that grants CTFd admin role on login.
+                        e.g. <code>com.tampadevs.admin</code> — leave blank to disable.
+                    </small>
+                    {{ form.admin_entitlement(class="form-control", value=admin_entitlement, placeholder="com.example.admin") }}
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {{ form.submit(class="btn btn-md btn-primary btn-outlined") }}
+                    </div>
+                </div>
+                {{ form.nonce() }}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
