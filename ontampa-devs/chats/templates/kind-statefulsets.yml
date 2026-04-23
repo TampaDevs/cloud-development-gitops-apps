@@ -1,0 +1,117 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bridge-postgres-synapse
+  namespace: ontampa-devs-chats
+  labels:
+    app: synapse
+    app.kubernetes.io/part-of: bridge-postgres
+spec:
+  selector:
+    matchLabels:
+      app: synapse
+  serviceName: bridge-postgres-synapse-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: synapse
+        app.kubernetes.io/part-of: bridge-postgres
+    spec:
+      securityContext:
+        fsGroup: 26
+      containers:
+        - name: postgres
+          image: quay.io/sclorg/postgresql-16-c10s:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: LANG
+              value: "C.UTF-8"
+          envFrom:
+            - secretRef:
+                name: bridge-postgres-synapse-secret
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/pgsql/data
+          readinessProbe:
+            exec:
+              command: ["/usr/libexec/check-container"]
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["/usr/libexec/check-container", "--live"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: bridge-postgres-synapse-pvc
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bridge-postgres-mas
+  namespace: ontampa-devs-chats
+  labels:
+    app: mas
+    app.kubernetes.io/part-of: bridge-postgres
+spec:
+  selector:
+    matchLabels:
+      app: mas
+      app.kubernetes.io/part-of: bridge-postgres
+  serviceName: bridge-postgres-mas-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mas
+        app.kubernetes.io/part-of: bridge-postgres
+    spec:
+      securityContext:
+        fsGroup: 26
+      containers:
+        - name: postgres
+          image: quay.io/sclorg/postgresql-16-c10s:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRESQL_INITDB_ARGS
+              value: "--encoding=UTF8 --locale=C"
+          envFrom:
+            - secretRef:
+                name: bridge-postgres-mas-secret
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/pgsql/data
+          readinessProbe:
+            exec:
+              command: ["/usr/libexec/check-container"]
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["/usr/libexec/check-container", "--live"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: bridge-postgres-mas-pvc
