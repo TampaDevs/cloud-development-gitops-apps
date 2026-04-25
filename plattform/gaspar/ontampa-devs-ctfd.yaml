@@ -7,7 +7,7 @@ metadata:
 spec:
   project: cloud-development-gitops-apps
   source:
-    repoURL: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+    repoURL: git@github.com:TampaDevs/cloud-development-gitops-apps.git 
     path: charts/ontampa-devs/ctfd
     targetRevision: main
     helm:
