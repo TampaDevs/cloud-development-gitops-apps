@@ -15,7 +15,7 @@ category/
     |-- files/
     │   ├── config.ini
     └── templates/
-        ├── deployment.yaml
-        ├── secret.yaml
-        └── service.yaml
+        ├── kind-deployment.yaml
+        ├── kind-secret.yaml
+        └── kind-service.yaml
 ```

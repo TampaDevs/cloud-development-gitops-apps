@@ -2,23 +2,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ontampa-devs-gaming/minecraft
-  namespace: ontampa-devs-gaming
+  name: ontampa-devs-ctfd/captcha
+  namespace: ontampa-devs-ctfd
 spec:
-  project: default
+  project: cloud-development-gitops-apps
   source:
     repoURL: https://github.com/TampaDevs/cloud-development-gitops-apps.git
-    path: charts/ontampa-devs-gaming/minecraft
+    path: charts/ontampa-devs/ctfd
     targetRevision: main
     helm:
       valueFiles:
         - values-gaspar.yaml
     destination:
       server: https://kubernetes.default.svc
-      namespace: ontampa-devs-gaming
+      namespace: ontampa-devs-ctfd
   syncPolicy:
-    automated:
+    automated:        
       prune: true
       selfHeal: true
-    syncOptions:
+    syncOptions:    
       - Validate=true
