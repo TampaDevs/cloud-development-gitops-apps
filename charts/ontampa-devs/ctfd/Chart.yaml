@@ -2,4 +2,6 @@ apiVersion: v2
 name: Tampa Devs CTF  
 description: Helm Chart for custom built Helm chart
 type: application
+icon: https://raw.githubusercontent.com/CTFd/CTFd/master/CTFd/themes/core/static/img/logo.png
 version: 0.0.1
+appVersion: "v3.8.4"
