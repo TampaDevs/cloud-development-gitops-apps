@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ontampa-devs-ctfd/captcha
+  name: ontampa-devs-ctfd-captcha
   namespace: argo-plattform
 spec:
   project: cloud-development-gitops-apps
