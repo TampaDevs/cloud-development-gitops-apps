@@ -37,7 +37,7 @@ spec:
         deployment: app-floating
     spec:
       containers:
-      - image: image-registry.openshift-image-registry.svc:5000/ontampa-devs-floating/app-floating@sha256:3ffd60c1e6139250e88a08bd76fa37de7e8d7ca9624af59c63eb806d282579ba
+      - image: image-registry.openshift-image-registry.svc:5000/ontampa-devs-floating/app-floating:latest
         imagePullPolicy: Always
         name: app-floating
         terminationMessagePath: /dev/termination-log
