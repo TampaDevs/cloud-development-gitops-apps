@@ -2,20 +2,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ontampa-devs-ctfd/captcha
+  name: ontampa-devs/floating
   namespace: argo-plattform
 spec:
   project: cloud-development-gitops-apps
   source:
     repoURL: https://github.com/TampaDevs/cloud-development-gitops-apps.git
-    path: charts/ontampa-devs/ctfd
+    path: charts/ontampa-devs/floating
     targetRevision: main
     helm:
       valueFiles:
         - values-gaspar.yaml
     destination:
       server: https://kubernetes.default.svc
-      namespace: ontampa-devs-ctfd
+      namespace: ontampa-devs-floating
   syncPolicy:
     automated:        
       prune: true

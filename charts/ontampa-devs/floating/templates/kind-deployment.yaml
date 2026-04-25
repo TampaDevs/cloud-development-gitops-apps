@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: '*'
+    app.openshift.io/route-disabled: "false"
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"app-floating:latest","namespace":"ontampa-devs-floating"},"fieldPath":
+      "spec.template.spec.containers[?(@.name==\"app-floating\")].image","paused":false}]'
+  labels:
+    app: app-floating
+    app.kubernetes.io/component: app-floating
+    app.kubernetes.io/instance: app-floating
+    app.kubernetes.io/name: app-floating
+    app.kubernetes.io/part-of: app-floating
+  name: app-floating
+  namespace: ontampa-devs-floating
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: app-floating
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: app-floating
+        deployment: app-floating
+    spec:
+      containers:
+      - image: image-registry.openshift-image-registry.svc:5000/ontampa-devs-floating/app-floating@sha256:3ffd60c1e6139250e88a08bd76fa37de7e8d7ca9624af59c63eb806d282579ba
+        imagePullPolicy: Always
+        name: app-floating
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
