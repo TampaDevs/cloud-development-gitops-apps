@@ -1,0 +1,34 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+    openshift.io/generated-by: OpenShiftWebConsole
+  labels:
+    app: app-floating
+    app.kubernetes.io/component: app-floating
+    app.kubernetes.io/instance: app-floating
+    app.kubernetes.io/name: app-floating
+    app.kubernetes.io/part-of: app-floating
+  name: app-floating
+  namespace: ontampa-devs-floating
+spec:
+  clusterIP: 172.30.124.112
+  clusterIPs:
+  - 172.30.124.112
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: app-floating
+    deployment: app-floating
+  sessionAffinity: None
+  type: ClusterIP
