@@ -36,7 +36,7 @@ spec:
         deployment: glxgears
     spec:
       containers:
-      - image: image-registry.openshift-image-registry.svc:5000/ontampa-devs-glxgears/glxgears@sha256:9719b98749cf708ca05af3fbee8ccaa2e39234347de2c800910bf833376515b8
+      - image: image-registry.openshift-image-registry.svc:5000/ontampa-devs-glxgears/glxgears:latest
         imagePullPolicy: Always
         name: glxgears
         resources: {}
