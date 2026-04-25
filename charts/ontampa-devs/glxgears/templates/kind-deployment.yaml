@@ -4,10 +4,7 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/vcs-ref: ""
-    app.openshift.io/vcs-uri: https://github.com/desyncit/lab.git
-    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"glxgears:latest","namespace":
-      "ontampa-devs-glxgears"},"fieldPath":"spec.template.spec.containers[?(@.name==\"glxgears\")].image","pause":"false"}]'
-    openshift.io/generated-by: OpenShiftWebConsole
+    app.openshift.io/vcs-uri: https://github.com/desyncit/lab.git  
   labels:
     app: glxgears
     app.kubernetes.io/component: glxgears
