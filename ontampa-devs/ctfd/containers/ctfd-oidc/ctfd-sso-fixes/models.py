@@ -11,8 +11,6 @@ class OAuthClients(db.Model):
     api_base_url = db.Column(db.Text)
     color = db.Column(db.Text)
     icon = db.Column(db.Text)
-    # Entitlement claim value that grants CTFd admin role.
-    # e.g. "com.tampadevs.admin" — leave blank to disable entitlement mapping.
     admin_entitlement = db.Column(db.Text)
 
     def register(self, oauth):
@@ -23,11 +21,6 @@ class OAuthClients(db.Model):
             access_token_url=self.access_token_url,
             authorize_url=self.authorize_url,
             api_base_url=self.api_base_url,
-            # openid        — base OIDC
-            # profile       — preferred_username, name, picture
-            # email         — email, email_verified
-            # read:user     — tampa.dev user profile
-            # developer     — unlocks https://tampa.dev/entitlements claim
             client_kwargs={'scope': 'openid profile email read:user developer'}
         )
 
