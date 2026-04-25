@@ -3,12 +3,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    alpha.image.policy.openshift.io/resolve-names: '*'
-    app.openshift.io/route-disabled: "false"
     app.openshift.io/vcs-ref: ""
     app.openshift.io/vcs-uri: https://github.com/TampaDevs/cloud-development-gitops-apps.git
-    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"app-floating:latest","namespace":"ontampa-devs-floating"},"fieldPath":
-      "spec.template.spec.containers[?(@.name==\"app-floating\")].image","paused":false}]'
   labels:
     app: app-floating
     app.kubernetes.io/component: app-floating
