@@ -5,8 +5,8 @@ metadata:
   annotations:
     app.openshift.io/vcs-ref: ""
     app.openshift.io/vcs-uri: https://github.com/desyncit/lab.git
-    deployment.kubernetes.io/revision: "5"
-    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"glxgears:latest","namespace":"ontampa-devs-glxgears"},"fieldPath":"spec.template.spec.containers[?(@.name==\"glxgears\")].image","pause":"false"}]'
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"glxgears:latest","namespace":
+      "ontampa-devs-glxgears"},"fieldPath":"spec.template.spec.containers[?(@.name==\"glxgears\")].image","pause":"false"}]'
     openshift.io/generated-by: OpenShiftWebConsole
   labels:
     app: glxgears
