@@ -1,0 +1,5 @@
+apiVersion: v2
+name: Tampa Devs CTF  
+description: Helm Chart for custom built Helm chart
+type: application
+version: 0.0.1
