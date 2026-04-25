@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/desyncit/lab.git
+    deployment.kubernetes.io/revision: "5"
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"glxgears:latest","namespace":"ontampa-devs-glxgears"},"fieldPath":"spec.template.spec.containers[?(@.name==\"glxgears\")].image","pause":"false"}]'
+    openshift.io/generated-by: OpenShiftWebConsole
+  labels:
+    app: glxgears
+    app.kubernetes.io/component: glxgears
+    app.kubernetes.io/instance: glxgears
+    app.kubernetes.io/name: glxgears
+    app.kubernetes.io/part-of: ontampa-devs-glxgears-app
+  name: glxgears
+  namespace: ontampa-devs-glxgears
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: glxgears
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: glxgears
+        deployment: glxgears
+    spec:
+      containers:
+      - image: image-registry.openshift-image-registry.svc:5000/ontampa-devs-glxgears/glxgears@sha256:9719b98749cf708ca05af3fbee8ccaa2e39234347de2c800910bf833376515b8
+        imagePullPolicy: Always
+        name: glxgears
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: glxgears-test
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: glxgears-test
+        persistentVolumeClaim:
+          claimName: glxgears-test
