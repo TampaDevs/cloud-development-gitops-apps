@@ -1,0 +1,47 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: app-floating
+    app.kubernetes.io/component: app-floating
+    app.kubernetes.io/instance: app-floating
+    app.kubernetes.io/name: app-floating
+    app.kubernetes.io/part-of: floating
+  name: floating
+  namespace: ontampa-devs-floating
+spec:
+  host: floating.ontampa.dev
+  port:
+    targetPort: 8080-tcp
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: app-floating
+    weight: 100
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: app-floating
+    app.kubernetes.io/component: app-floating
+    app.kubernetes.io/instance: app-floating
+    app.kubernetes.io/name: app-floating
+    app.kubernetes.io/part-of: app-floating
+  name: app-floating
+  namespace: ontampa-devs-floating
+spec:
+  host: app-floating-ontampa-devs-floating.apps.gaspar.ontampa.dev
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: app-floating
+    weight: 100
+  wildcardPolicy: None

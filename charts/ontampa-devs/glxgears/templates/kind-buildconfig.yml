@@ -1,0 +1,45 @@
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+  labels:
+    app: app-floating
+    app.kubernetes.io/component: app-floating
+    app.kubernetes.io/instance: app-floating
+    app.kubernetes.io/name: app-floating
+    app.kubernetes.io/part-of: app-floating
+  name: app-floating
+  namespace: ontampa-devs-floating
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: app-floating:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: ontampa-devs/floating
+    git:
+      uri: https://github.com/TampaDevs/cloud-development-gitops-apps.git
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Containerfile
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - generic:
+      secretReference:
+        name: app-floating-generic-webhook-secret
+    type: Generic
+  - github:
+      secretReference:
+        name: app-floating-github-webhook-secret
+    type: GitHub
+  - type: ConfigChange

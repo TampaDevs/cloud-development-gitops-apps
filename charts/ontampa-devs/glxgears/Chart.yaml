@@ -1,0 +1,6 @@
+---
+apiVersion: v2
+name: ontampa-devs/glxgears  
+description: Helm Chart for Tampa devs floating mascot
+type: application
+version: 0.0.1
