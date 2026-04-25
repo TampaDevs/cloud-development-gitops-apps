@@ -18,7 +18,6 @@ from .models import OAuthClients
 
 plugin_bp = Blueprint('sso', __name__, template_folder='templates', static_folder='static', static_url_path='/static/sso')
 
-
 class OAuthForm(BaseForm):
     name = StringField("Client name", validators=[InputRequired()])
     client_id = StringField("OAuth client id", validators=[InputRequired()])
@@ -30,11 +29,9 @@ class OAuthForm(BaseForm):
     admin_entitlement = StringField("Admin entitlement claim")
     submit = SubmitField("Save")
 
-
 def get_oauth():
     """Retrieve the OAuth instance stored on the app at load() time."""
     return current_app.extensions['ctfd-sso-oauth']
-
 
 def get_or_register_client(db_client):
     """
@@ -52,10 +49,7 @@ def get_or_register_client(db_client):
 
 
 def load_bp(oauth):
-    # Store oauth on the app so requests can always reach the current instance
-    # regardless of when clients were added (fixes NoneType on create_client).
-    # We defer the actual attach to when the app context is available.
-    oauth._app = oauth.app  # keep reference; attached in __init__.load()
+    oauth._app = oauth.app  
 
     @plugin_bp.route('/admin/sso')
     @admins_only
@@ -100,15 +94,11 @@ def load_bp(oauth):
             db.session.add(client)
             db.session.commit()
             db.session.flush()
-
-            # Register against the live oauth instance on the app
             client.register(get_oauth())
-
             return redirect(url_for('sso.sso_list'))
 
         form = OAuthForm()
         return render_template('create.html', form=form)
-
 
     @plugin_bp.route('/admin/sso/client/<int:client_id>/edit', methods=['GET', 'POST'])
     @admins_only
@@ -124,7 +114,6 @@ def load_bp(oauth):
             client.icon = request.form.get("icon") or None
             client.admin_entitlement = request.form.get("admin_entitlement") or None
             db.session.commit()
-            # Re-register with updated credentials
             client.disconnect(get_oauth())
             client.register(get_oauth())
             return redirect(url_for('sso.sso_list'))
@@ -147,11 +136,6 @@ def load_bp(oauth):
 
         user_name = api_data["preferred_username"]
         user_email = api_data["email"]
-
-        # ── Entitlement-based role mapping ────────────────────────────────────
-        # Entitlements can appear under multiple claim keys depending on the IdP.
-        # We check both the namespaced tampa.dev key and a generic "entitlements"
-        # key so this works with any OIDC provider.
         raw_entitlements = (
             api_data.get("https://tampa.dev/entitlements")
             or api_data.get("entitlements")
@@ -166,7 +150,6 @@ def load_bp(oauth):
 
         user = Users.query.filter_by(email=user_email).first()
         if user is None:
-            # get_app_config reads the DB, not env vars — use os.environ directly
             always_possible = os.environ.get("OAUTH_ALWAYS_POSSIBLE", "")
             allow = always_possible in ("true", "True", "1") or registration_visible()
             if allow:
@@ -187,14 +170,10 @@ def load_bp(oauth):
                 return redirect(url_for("auth.login"))
 
         user.verified = True
-
-        # Update role on every login so entitlement changes take effect
-        # immediately without manual intervention in the CTFd admin panel.
         if user.type != desired_role:
             user.type = desired_role
             db.session.commit()
             clear_user_session(user_id=user.id)
-            # Reload user after session clear
             user = Users.query.filter_by(email=user_email).first()
 
         db.session.commit()
