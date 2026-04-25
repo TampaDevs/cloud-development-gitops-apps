@@ -13,9 +13,9 @@ spec:
     helm:
       valueFiles:
         - values-gaspar.yaml
-    destination:
-      server: https://kubernetes.default.svc
-      namespace: ontampa-devs-floating
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ontampa-devs-floating
   syncPolicy:
     automated:        
       prune: true
